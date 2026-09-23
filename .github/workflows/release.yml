@@ -1,0 +1,50 @@
+name: WASM Release
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+
+jobs:
+  release:
+    name: Build & Publish WASM Release Assets
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-unknown-unknown
+
+      - name: Cache cargo artifacts
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: ${{ runner.os }}-cargo-release-${{ hashFiles('**/Cargo.lock') }}
+
+      - name: Install Stellar CLI
+        run: cargo install stellar-cli --locked
+
+      - name: Build optimized contracts
+        working-directory: ./soroban
+        run: stellar contract build --release
+
+      - name: Generate SHA256 checksums
+        working-directory: ./soroban/target/wasm32-unknown-unknown/release
+        run: |
+          for f in *.wasm; do sha256sum "$f" > "${f}.sha256"; done
+
+      - name: Publish GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            soroban/target/wasm32-unknown-unknown/release/*.wasm
+            soroban/target/wasm32-unknown-unknown/release/*.sha256

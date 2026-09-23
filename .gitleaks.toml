@@ -1,0 +1,25 @@
+title = "DeWordle Gitleaks Configuration"
+
+[extend]
+useDefault = true
+
+[[rules]]
+id = "stellar-seed-key"
+description = "Stellar seed key (starts with S)"
+regex = '''S[A-Z2-7]{55}'''
+tags = ["key", "stellar"]
+
+[[rules]]
+id = "jwt-secret"
+description = "Hardcoded JWT secret"
+regex = '''(?i)jwt[_\-]?secret\s*=\s*[''"]?.{8,}'''
+tags = ["jwt", "secret"]
+
+[allowlist]
+description = "Allowlist for test/mock keys"
+paths = [
+  '''tests/.*''',
+  '''__mocks__/.*''',
+  '''.*\.test\.(js|ts)$''',
+  '''.*\.spec\.(js|ts)$''',
+]

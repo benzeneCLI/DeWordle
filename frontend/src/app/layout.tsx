@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Geist, Inter, Plus_Jakarta_Sans } from "next/font/google";
+import { Geist, Inter, Plus_Jakarta_Sans, Roboto_Mono } from "next/font/google";
 import localFont from "next/font/local";
 import "./globals.css";
 import { AuthProvider } from "../../context/AuthContext";
@@ -11,16 +11,25 @@ import { OnboardingProvider } from "@/providers/onboarding-provider";
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
+  display: "swap",
 });
 
 const inter = Inter({
   subsets: ["latin"],
   variable: "--font-inter",
+  display: "swap",
+});
+
+const robotoMono = Roboto_Mono({
+  subsets: ["latin"],
+  variable: "--font-roboto-mono",
+  display: "swap",
 });
 
 const jakartaSans = Plus_Jakarta_Sans({
   subsets: ["latin"],
   variable: "--font-jakarta-sans",
+  display: "swap",
 });
 
 const clashDisplay = localFont({
@@ -55,7 +64,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${inter.variable} ${jakartaSans.variable} ${clashDisplay.variable} antialiased hide-scrollbar`}
+        className={`${geistSans.variable} ${inter.variable} ${robotoMono.variable} ${jakartaSans.variable} ${clashDisplay.variable} antialiased hide-scrollbar`}
       >
         <a
           href="#main-content"

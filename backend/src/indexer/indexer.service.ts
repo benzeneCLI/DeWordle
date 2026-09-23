@@ -13,6 +13,7 @@ import {
 import { randomUUID } from 'crypto';
 import { INDEXER_STREAM_CORE_GAME } from './indexer.constants';
 import { ReplayAlertService } from './queue/replay-alert.service';
+import { EventDedupService } from './dedup/event-dedup.service';
 import { sanitizeErrorMessage } from '../common/redaction';
 
 export interface IndexerLogContext {
@@ -26,6 +27,7 @@ export interface IndexerMetrics {
   projectionErrors: number;
   pollCycles: number;
   lastCursorLedger: number;
+  lastTickAt: Date | null;
 }
 
 export interface IndexerLagSnapshot {
@@ -56,6 +58,7 @@ export class IndexerService {
     projectionErrors: 0,
     pollCycles: 0,
     lastCursorLedger: 0,
+    lastTickAt: null,
   };
 
   constructor(
@@ -64,11 +67,28 @@ export class IndexerService {
     private readonly cursorService: CursorService,
     private readonly configService: ConfigService,
     private readonly replayAlertService: ReplayAlertService,
+    private readonly eventDedupService: EventDedupService,
   ) {}
 
   async ingest(event: IngestedEventDto, context?: IndexerLogContext) {
     const t0 = Date.now();
     try {
+      // IDX-DEDUP-1214: skip events already processed within the TTL
+      // window (Soroban RPC can redeliver events during reconnects).
+      if (
+        await this.eventDedupService.isDuplicate(event.txHash, event.eventIndex)
+      ) {
+        this.logger.debug({
+          msg: 'indexer.ingest.duplicate_skipped',
+          correlationId: context?.correlationId,
+          topic: event.topic,
+          ledger: event.ledger,
+          txHash: event.txHash,
+          eventIndex: event.eventIndex,
+        });
+        return;
+      }
+
       await this.eventProcessor.process(event, context);
       await this.cursorService.checkpoint(
         event.network,
@@ -104,8 +124,7 @@ export class IndexerService {
   async getLagSnapshot(): Promise<IndexerLagSnapshot> {
     const network =
       (this.configService.get<string>('SOROBAN_NETWORK') as
-        | 'testnet'
-        | 'mainnet') || 'testnet';
+        'testnet' | 'mainnet') || 'testnet';
     const rpcUrl = this.configService.get<string>('SOROBAN_RPC_URL');
     const cursor = await this.cursorService.getOrCreate(
       network,
@@ -139,11 +158,41 @@ export class IndexerService {
     };
   }
 
+  getHealthcheck(): {
+    status: 'alive' | 'stale' | 'down';
+    queueDepth: number;
+    queueMaxSize: number;
+    secondsSinceLastTick: number;
+    lastTickAt: string | null;
+    ingestedTotal: number;
+    projectionErrors: number;
+  } {
+    const now = Date.now();
+    const lastTick = this.metrics.lastTickAt?.getTime() ?? 0;
+    const secondsSinceLastTick =
+      lastTick === 0 ? Infinity : Math.floor((now - lastTick) / 1000);
+
+    let status: 'alive' | 'stale' | 'down' = 'alive';
+    if (secondsSinceLastTick > 60) status = 'down';
+    else if (secondsSinceLastTick > 30) status = 'stale';
+
+    if (this.metrics.pollCycles === 0) status = 'down';
+
+    return {
+      status,
+      queueDepth: 0,
+      queueMaxSize: 0,
+      secondsSinceLastTick,
+      lastTickAt: this.metrics.lastTickAt?.toISOString() ?? null,
+      ingestedTotal: this.metrics.ingestedTotal,
+      projectionErrors: this.metrics.projectionErrors,
+    };
+  }
+
   async poll(context?: IndexerLogContext): Promise<number> {
     const network =
       (this.configService.get<string>('SOROBAN_NETWORK') as
-        | 'testnet'
-        | 'mainnet') || 'testnet';
+        'testnet' | 'mainnet') || 'testnet';
     const rpcUrl = this.configService.get<string>('SOROBAN_RPC_URL');
     const contractId = this.configService.get<string>(
       'SOROBAN_CORE_GAME_CONTRACT_ID',
@@ -168,6 +217,7 @@ export class IndexerService {
     );
     this.metrics.pollCycles++;
     this.metrics.lastCursorLedger = cursor.lastLedger;
+    this.metrics.lastTickAt = new Date();
 
     this.logger.log({
       msg: 'indexer.poll.tick',
@@ -272,6 +322,7 @@ export class IndexerService {
     this.metrics.ingestedTotal = 0;
     this.metrics.replaySkips = 0;
     this.metrics.projectionErrors = 0;
+    this.metrics.lastTickAt = null;
     this.logger.warn({
       msg: 'indexer.cursor.reset',
       network,

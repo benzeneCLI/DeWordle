@@ -42,6 +42,7 @@ pub enum AchievementsError {
     Unauthorized = 3,
     InvalidNonce = 4,
     DefinitionNotFound = 5,
+    AlreadyClaimed = 6,
 }
 
 #[contract]
@@ -72,11 +73,26 @@ impl AchievementsContract {
         env.events().publish((Symbol::new(&env, "achievement_defined"), id), def);
     }
 
+    pub fn get_spec_metadata(env: Env) -> soroban_sdk::Vec<Symbol> {
+        let mut meta = soroban_sdk::Vec::new(&env);
+        meta.push_back(Symbol::new(&env, "AchievementsContractSpec"));
+        meta.push_back(Symbol::new(&env, "v1.0.0"));
+        meta
+    }
+
     pub fn unlock(env: Env, player: Address, id: Symbol, nonce: u64) {
         Self::require_admin(&env);
 
         if !env.storage().persistent().has(&DataKey::Definition(id.clone())) {
             panic_with_error!(&env, AchievementsError::DefinitionNotFound);
+        }
+
+        if env
+            .storage()
+            .persistent()
+            .has(&DataKey::Unlocked(player.clone(), id.clone()))
+        {
+            panic_with_error!(&env, AchievementsError::AlreadyClaimed);
         }
 
         if env
@@ -192,6 +208,18 @@ mod tests {
         let record = client.get_unlocked(&player, &first).unwrap();
         assert_eq!(record.player, player);
         assert_eq!(record.nonce, 1);
+    }
+
+    #[test]
+    #[should_panic(expected = "Error(Contract, #6)")]
+    fn test_duplicate_achievement_claim_fails() {
+        let (env, _, contract_id) = setup();
+        let client = AchievementsContractClient::new(&env, &contract_id);
+        let player = Address::generate(&env);
+        define_achievement(&env, &client, "first");
+        let first = Symbol::new(&env, "first");
+        client.unlock(&player, &first, &1);
+        client.unlock(&player, &first, &2);
     }
 
     #[test]

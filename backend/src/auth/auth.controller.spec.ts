@@ -8,7 +8,18 @@ describe('AuthController', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [AuthController],
-      providers: [AuthService],
+      providers: [
+        {
+          provide: AuthService,
+          useValue: {
+            signup: jest.fn(),
+            login: jest.fn(),
+            forgotPassword: jest.fn(),
+            resetPassword: jest.fn(),
+            refreshToken: jest.fn(),
+          },
+        },
+      ],
     }).compile();
 
     controller = module.get<AuthController>(AuthController);
@@ -18,3 +29,4 @@ describe('AuthController', () => {
     expect(controller).toBeDefined();
   });
 });
+

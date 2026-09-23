@@ -1,0 +1,65 @@
+name: Security Scan
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  dependency-audit:
+    name: Dependency Vulnerability Audit
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Install cargo-audit
+        run: cargo install cargo-audit --locked
+
+      - name: Create reports directory
+        run: mkdir -p reports
+
+      - name: Run npm audit
+        working-directory: ./backend
+        run: npm audit --json > ../reports/dependency-audit.json || true
+
+      - name: Run cargo audit
+        working-directory: ./soroban
+        run: cargo audit --json >> ../reports/dependency-audit.json || true
+
+      - name: Upload audit report
+        uses: actions/upload-artifact@v4
+        with:
+          name: dependency-audit-report
+          path: reports/dependency-audit.json
+
+      - name: Fail on critical vulnerabilities
+        working-directory: ./backend
+        run: npm audit --audit-level=critical
+
+  secret-scan:
+    name: Secret Scanning with Gitleaks
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Run Gitleaks
+        uses: gitleaks/gitleaks-action@v2
+        with:
+          config-path: .gitleaks.toml
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

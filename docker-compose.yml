@@ -1,11 +1,18 @@
 version: "3.9"
 
+x-logging: &default-logging
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "5"
+
 services:
   # PostgreSQL database
   db:
     image: postgres:16-alpine
     container_name: dewordle-db
     restart: unless-stopped
+    logging: *default-logging
     environment:
       POSTGRES_USER: ${DB_USER:-dewordle}
       POSTGRES_PASSWORD: ${DB_PASSWORD:-dewordle_secret}
@@ -27,6 +34,7 @@ services:
     image: redis:7-alpine
     container_name: dewordle-redis
     restart: unless-stopped
+    logging: *default-logging
     ports:
       - "${REDIS_PORT:-6379}:6379"
     networks:
@@ -44,6 +52,7 @@ services:
       dockerfile: Dockerfile.dev
     container_name: dewordle-backend
     restart: unless-stopped
+    logging: *default-logging
     depends_on:
       db:
         condition: service_healthy
@@ -71,6 +80,7 @@ services:
       dockerfile: Dockerfile.dev
     container_name: dewordle-frontend
     restart: unless-stopped
+    logging: *default-logging
     depends_on:
       - backend
     ports:
@@ -82,6 +92,20 @@ services:
     environment:
       NEXT_PUBLIC_API_URL: http://localhost:${API_PORT:-3001}
       NODE_ENV: development
+    networks:
+      - dewordle-net
+
+  # Stellar Soroban RPC local standalone testnet
+  soroban-rpc:
+    image: stellar/quickstart:latest
+    container_name: dewordle-soroban-rpc
+    restart: unless-stopped
+    logging: *default-logging
+    command: --standalone --enable-soroban-rpc
+    ports:
+      - "8000:8000"
+    environment:
+      NETWORK: standalone
     networks:
       - dewordle-net
 
