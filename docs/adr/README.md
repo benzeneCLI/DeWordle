@@ -12,6 +12,7 @@ This directory contains Architecture Decision Records (ADRs) for the DeWordle pr
 | [0004](./0004-contract-storage-model.md) | Contract Storage Model | Proposed | 2024-08 |
 | [0004](./0004-error-handling-and-logging-standards.md) | Error Handling and Logging Standards | Proposed | 2024-08 |
 | [0005](./0005-frontend-state-store-selection.md) | Frontend State Store Selection | Proposed | 2024-08 |
+| [0005](./0005-postgres-jsonb-vs-relational-schema.md) | PostgreSQL JSONB vs Relational Schema for Game Sessions | Accepted | 2024-09 |
 | [0006](./0006-backend-database-orm-selection.md) | Backend Database ORM Selection | Proposed | 2024-08 |
 | [0007](./0007-dark-mode-theme-implementation.md) | Dark Mode Theme Implementation | Proposed | 2024-08 |
 | [0008](./0008-contract-storage-model.md) | Contract Storage Model | Proposed | 2024-08 |
