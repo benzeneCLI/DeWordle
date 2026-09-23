@@ -44,4 +44,29 @@ npm run bootstrap          # contributor environment bootstrap
 npm run docs:linkcheck      # scan markdown for stale links
 ```
 
+## Video walkthroughs
+
+No walkthrough videos have been recorded yet — this section is a
+placeholder so links can be dropped in here directly once they exist,
+rather than scattering them across issues/PRs. Until then, the written
+architectural overview covers the same ground:
+
+- [Local Soroban development](./SOROBAN_LOCAL_DEV.md) — the local
+  environment setup a "getting started" video would demo.
+- `docs/architecture/` and `docs/troubleshooting/` (once merged) will
+  hold the system context/container diagram, the guess-submission
+  sequence diagram, and RPC troubleshooting steps a walkthrough would
+  otherwise cover — link to those here directly once they land on
+  `main`.
+
+| Track | Walkthrough | Status |
+| --- | --- | --- |
+| Full onboarding | — | Not yet recorded |
+| Backend / indexer | — | Not yet recorded |
+| Frontend | — | Not yet recorded |
+| Smart contracts (Soroban) | — | Not yet recorded |
+
+If you record one of these, replace the `—`/`Not yet recorded` cells
+above with the video link in the same PR.
+
 See `CONTRIBUTING.md` for the full first-PR checklist.

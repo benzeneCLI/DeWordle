@@ -11,6 +11,7 @@ This directory contains Architecture Decision Records (ADRs) for the DeWordle pr
 | [0003](./0003-frontend-accessibility-standards.md) | Frontend Accessibility Standards | Accepted | 2024-07 |
 | [0004](./0004-contract-storage-model.md) | Contract Storage Model | Proposed | 2024-08 |
 | [0004](./0004-error-handling-and-logging-standards.md) | Error Handling and Logging Standards | Proposed | 2024-08 |
+| [0004](./0004-shared-event-schema-versioning.md) | Shared Event Schema Versioning | Accepted | 2024-09 |
 | [0005](./0005-frontend-state-store-selection.md) | Frontend State Store Selection | Proposed | 2024-08 |
 | [0006](./0006-backend-database-orm-selection.md) | Backend Database ORM Selection | Proposed | 2024-08 |
 | [0007](./0007-dark-mode-theme-implementation.md) | Dark Mode Theme Implementation | Proposed | 2024-08 |
