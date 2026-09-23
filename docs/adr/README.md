@@ -13,6 +13,7 @@ This directory contains Architecture Decision Records (ADRs) for the DeWordle pr
 | [0004](./0004-error-handling-and-logging-standards.md) | Error Handling and Logging Standards | Proposed | 2024-08 |
 | [0005](./0005-frontend-state-store-selection.md) | Frontend State Store Selection | Proposed | 2024-08 |
 | [0006](./0006-backend-database-orm-selection.md) | Backend Database ORM Selection | Proposed | 2024-08 |
+| [0006](./0006-soroban-storage-type-selection.md) | Soroban Storage Type Selection for Player Sessions & Streaks | Accepted | 2024-09 |
 | [0007](./0007-dark-mode-theme-implementation.md) | Dark Mode Theme Implementation | Proposed | 2024-08 |
 | [0008](./0008-contract-storage-model.md) | Contract Storage Model | Proposed | 2024-08 |
 | [0009](./0009-soroban-event-indexing.md) | Soroban Contract Event Indexing Model | Proposed | 2024-08 |
