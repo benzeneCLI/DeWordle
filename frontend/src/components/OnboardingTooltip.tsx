@@ -2,7 +2,10 @@
 
 import { motion, AnimatePresence } from "framer-motion";
 import { useOnboarding } from "@/hooks/useOnboarding";
-import { X, ArrowRight, ArrowLeft, HelpCircle } from "lucide-react";
+import X from "lucide-react/dist/esm/icons/x";
+import ArrowRight from "lucide-react/dist/esm/icons/arrow-right";
+import ArrowLeft from "lucide-react/dist/esm/icons/arrow-left";
+import HelpCircle from "lucide-react/dist/esm/icons/help-circle";
 
 const STEP_CONFIG: Record<
   string,

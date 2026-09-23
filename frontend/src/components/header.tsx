@@ -5,7 +5,8 @@ import { usePathname } from 'next/navigation';
 import { createAvatar } from '@dicebear/core';
 import { adventurer } from '@dicebear/collection';
 import Image from 'next/image';
-import { Bell, HelpCircle } from 'lucide-react';
+import Bell from 'lucide-react/dist/esm/icons/bell';
+import HelpCircle from 'lucide-react/dist/esm/icons/help-circle';
 import {
   Popover,
   PopoverContent,
