@@ -18,6 +18,7 @@ import { ScheduleModule } from '@nestjs/schedule';
 import { MetricsModule } from './dewordle/metrics/metrics.module';
 import { MetricsController } from './dewordle/metrics/metrics.controller';
 import { IndexerModule } from './indexer/indexer.module';
+import { DictionaryModule } from './word/dictionary.module';
 import { ReadApiController } from './common/read-api.controller';
 import { DeprecationController } from './common/deprecation.controller';
 import { WalletRateLimitGuard } from './common/rate-limit.guard';
@@ -137,6 +138,7 @@ import { PoolPressureService } from './database/pool-pressure.service';
     WordsModule,
     MetricsModule,
     IndexerModule,
+    DictionaryModule,
     AppCacheModule,
     VersioningModule,
     JobModule,
