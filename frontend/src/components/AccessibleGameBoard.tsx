@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo } from 'react';
+import { useMemo, type CSSProperties } from 'react';
 import {
   ARIA_LIVE_REGIONS,
   generateGameCellLabel,
@@ -8,6 +8,8 @@ import {
 } from '@/lib/accessibility';
 
 export type CellStatus = 'correct' | 'present' | 'absent' | 'empty';
+
+const TILE_FLIP_STAGGER_MS = 250;
 
 export interface GameCell {
   letter: string;
@@ -33,13 +35,18 @@ function Cell({
   isCurrentRow: boolean;
 }) {
   const label = generateGameCellLabel(position, cell.letter, cell.status);
+  const isEvaluated = cell.status !== 'empty';
+  const delayStyle = isEvaluated
+    ? ({ '--flip-delay': `${position * TILE_FLIP_STAGGER_MS}ms` } as CSSProperties)
+    : undefined;
 
   return (
     <div
       role="gridcell"
       aria-label={label}
       aria-current={isCurrentRow && cell.status === 'empty' ? 'true' : undefined}
-      className="w-12 h-12 sm:w-14 sm:h-14 border-2 flex items-center justify-center text-xl font-bold uppercase select-none"
+      className={`w-12 h-12 sm:w-14 sm:h-14 border-2 flex items-center justify-center text-xl font-bold uppercase select-none ${isEvaluated ? 'tile-flip' : ''}`}
+      style={delayStyle}
       aria-hidden="false"
     >
       {cell.letter}

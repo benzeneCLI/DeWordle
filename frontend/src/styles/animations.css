@@ -1,0 +1,38 @@
+/*
+ * ANIM-1111: 3D tile flip animation for guess-evaluation state transitions.
+ *
+ * Tiles rotate around the X axis while a state change is applied. Each tile
+ * can be delayed individually via the `--flip-delay` custom property (board
+ * components stagger consecutive letters by 250ms). The `prefers-reduced-motion`
+ * media query disables the animation for users who request it, keeping the
+ * state-colour transition accessible without motion.
+ */
+
+@keyframes tile-flip-3d {
+  0% {
+    transform: rotateX(0deg);
+  }
+
+  50% {
+    transform: rotateX(90deg);
+  }
+
+  100% {
+    transform: rotateX(0deg);
+  }
+}
+
+.tile-flip {
+  animation: tile-flip-3d 600ms ease-in-out;
+  animation-delay: var(--flip-delay, 0ms);
+  transform-style: preserve-3d;
+  backface-visibility: hidden;
+  will-change: transform;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tile-flip {
+    animation: none;
+    will-change: auto;
+  }
+}
