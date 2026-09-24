@@ -14,7 +14,7 @@ services:
       redis-server
       --requirepass "${REDIS_PASSWORD:-}"
       --maxmemory 256mb
-      --maxmemory-policy allkeys-lru
+      --maxmemory-policy volatile-lru
     volumes:
       - redis_data:/data
     healthcheck:
